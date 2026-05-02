@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { getEligibilityDecision } from '../services/aiService';
+import { useAI } from '../hooks/useAI';
 import { Card } from '../components/shared/Card';
 import { Button } from '../components/shared/Button';
 import { ProgressTracker } from '../components/shared/ProgressTracker';
@@ -12,8 +13,7 @@ export function GuidedFlow() {
   const { t, flowAnswers, updateAnswer, setAiResult } = useAppContext();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [error, setError] = useState('');
+  const { execute, isLoading: isAnalyzing, error } = useAI();
 
   const questions = [
     { id: 'age', text: t.flow.qAge, type: 'boolean' },
@@ -35,15 +35,10 @@ export function GuidedFlow() {
   };
 
   const handleSubmit = async () => {
-    setIsAnalyzing(true);
-    setError('');
-    try {
-      const result = await getEligibilityDecision(flowAnswers);
+    const result = await execute(getEligibilityDecision, flowAnswers);
+    if (result) {
       setAiResult(result);
       navigate('/dashboard');
-    } catch (err) {
-      setError(`AI Error: ${err.message || 'Unknown error occurred.'}`);
-      setIsAnalyzing(false);
     }
   };
 

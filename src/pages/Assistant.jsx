@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAppContext } from '../context/AppContext';
+import { useAI } from '../hooks/useAI';
 import { Card } from '../components/shared/Card';
 import { Button } from '../components/shared/Button';
 import { simplifyText } from '../services/aiService';
@@ -10,21 +11,13 @@ export function Assistant() {
   const { t } = useAppContext();
   const [inputText, setInputText] = useState('');
   const [result, setResult] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState('');
+  const { execute, isLoading: isProcessing, error } = useAI();
 
   const handleSimplify = async () => {
     if (!inputText.trim()) return;
-    setIsProcessing(true);
-    setError('');
-    
-    try {
-      const res = await simplifyText(inputText);
+    const res = await execute(simplifyText, inputText);
+    if (res) {
       setResult(res);
-    } catch (err) {
-      setError(`AI Error: ${err.message || 'Unknown error occurred.'}`);
-    } finally {
-      setIsProcessing(false);
     }
   };
 
