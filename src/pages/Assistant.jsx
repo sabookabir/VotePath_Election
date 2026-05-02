@@ -22,7 +22,7 @@ export function Assistant() {
       const res = await simplifyText(inputText);
       setResult(res);
     } catch (err) {
-      setError("AI Error: Please ensure you have a valid VITE_GEMINI_API_KEY in your .env file.");
+      setError(`AI Error: ${err.message || 'Unknown error occurred.'}`);
     } finally {
       setIsProcessing(false);
     }
